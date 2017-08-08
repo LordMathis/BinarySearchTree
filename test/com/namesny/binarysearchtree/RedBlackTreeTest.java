@@ -134,7 +134,6 @@ public class RedBlackTreeTest {
             }
             assertTrue(isValidRedBlackTree(instance.root));
         }
-
     }
 
     /**

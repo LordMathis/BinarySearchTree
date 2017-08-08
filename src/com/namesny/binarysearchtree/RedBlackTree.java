@@ -63,6 +63,11 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         protected RedBlackNode<T> right;
 
         /**
+         * Parent of the node
+         */
+        protected RedBlackNode<T> parent;
+
+        /**
          * Node color
          */
         protected Color color;
@@ -100,13 +105,43 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
     @Override
     public void insert(T value) throws DuplicateValueException {
-        root = insert(value, root);
+
+        if (root == null) {
+            root = new RedBlackNode<>(value);
+            root.parent = null;
+        } else {
+
+            RedBlackNode<T> node = root;
+            RedBlackNode<T> previous = null;
+            while (node != null) {
+                if (value.compareTo(node.value) < 0) {
+                    previous = node;
+                    node = node.left;
+                } else if (value.compareTo(node.value) > 0) {
+                    previous = node;
+                    node = node.right;
+                } else {
+                    throw new DuplicateValueException("Duplicate value: " + value);
+                }
+            }
+
+            node = new RedBlackNode<>(value);
+            node.parent = previous;
+            if (value.compareTo(previous.value) < 0) {
+                previous.left = node;
+            } else {
+                previous.right = node;
+            }
+
+            rebalanceInsert(node);
+
+        }
         root.color = Color.BLACK;
     }
 
     @Override
     public void delete(T key) {
-        root = delete(key, root);
+
     }
 
     @Override
@@ -134,60 +169,54 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         return findMax(root).value;
     }
 
-    private RedBlackNode<T> insert(T value, RedBlackNode<T> node) throws DuplicateValueException {
+    private void delete(T key, RedBlackNode<T> node) {
 
-        // We found the place where to insert the value
-        if (node == null) {
-            // Create new node with the value
-            node = new RedBlackNode<>(value);
-
-        } else if (value.compareTo(node.value) < 0) {
-            // Insert into left subtree
-            node.left = insert(value, node.left);
-
-        } else if (value.compareTo(node.value) > 0) {
-            // Insert into right subtree 
-            node.right = insert(value, node.right);
-
-        } else {
-            // The tree already contains the value
-            throw new DuplicateValueException("Duplicate value: " + value);
-        }
-
-        node = rebalanceInsert(node);
-        return node;
-    }
-
-    private RedBlackNode<T> delete(T value, RedBlackNode<T> node) {
-
-        if (node == null) {
-            return null;
-        }
-
-        if (node.value == value) {
-
-            if ((node.left == null) && (node.right == null)) {
-                node = null;
-            } else if (node.left == null) {
-                node = node.right;
-            } else if (node.right == null) {
+        while ((node != null) && (node.value != key)) {
+            if (key.compareTo(node.value) < 0) {
                 node = node.left;
             } else {
-                RedBlackNode<T> successor = findMin(node.right);
-
-                node.value = successor.value;
-                node = delete(successor.value, node);
+                node = node.right;
             }
-
-        } else if (value.compareTo(node.value) < 0) {
-            node = delete(value, node.left);
-
-        } else {
-            node = delete(value, node.right);
         }
 
-        node = rebalanceDelete(node);
-        return node;
+        if (node == null) {
+            return;
+        }
+
+        if ((node.left != null) && (node.right != null)) {
+
+            RedBlackNode<T> successor = findMin(node.right);
+            node.value = successor.value;
+            delete(successor.value, node);
+
+        } else {
+            RedBlackNode<T> child = node.left != null ? node.left : node.right;
+
+            // Deleted node is Red => just replace it with its child
+            if (node.color == Color.RED) {
+                if (node.parent.left == node) {
+                    node.parent.left = child;
+                } else {
+                    node.parent.right = child;
+                }
+
+            } else {
+                // Deleted node is black but has a red child
+                if (child.color == Color.RED) {
+                    child.color = Color.BLACK;
+                    if (node.parent.left == node) {
+                        node.parent.left = child;
+                    } else {
+                        node.parent.right = child;
+                    }
+
+                    // Deleted node is black and has a black child
+                } else {
+
+                }
+            }
+
+        }
     }
 
     private RedBlackNode<T> findMin(RedBlackNode<T> node) {
@@ -224,27 +253,23 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         return (node != null) && (node.color == Color.RED);
     }
 
-    private RedBlackNode<T> rebalanceInsert(RedBlackNode<T> node) {
+    private void rebalanceInsert(RedBlackNode<T> node) {
 
-        if (node.left == null && node.right == null) {
-            return node;
-        }
-        
         /**
          * First situation. The inserted node, its parent and its uncle are red.
-         * This is corrected two levels up, so node variable represents the grandparent
-         * of the inserted node. Split into two ifs for readability
+         * This is corrected two levels up, so node variable represents the
+         * grandparent of the inserted node. Split into two ifs for readability
          */
         if ((node.left != null)
                 && (isRed(node.left.left) || isRed(node.left.right))
-                && isRed(node.left) 
+                && isRed(node.left)
                 && isRed(node.right)) {
             node.left.color = Color.BLACK;
             node.right.color = Color.BLACK;
             node.color = Color.RED;
-        } else if ((node.right != null) 
-                && (isRed(node.right.left) || isRed(node.right.right)) 
-                && isRed(node.right) 
+        } else if ((node.right != null)
+                && (isRed(node.right.left) || isRed(node.right.right))
+                && isRed(node.right)
                 && isRed(node.left)) {
             node.right.color = Color.BLACK;
             node.left.color = Color.BLACK;
@@ -258,46 +283,46 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * grandfather of the inserted node. This does not fix the problem but
          * instead it transforms it into third situation
          */
-        if ((node.left != null) 
-                && isRed(node.left) 
-                && isRed(node.left.right) 
+        if ((node.left != null)
+                && isRed(node.left)
+                && isRed(node.left.right)
                 && !isRed(node.right)) {
-            node.left = rotateLeft(node.left);
-        } else if ((node.right != null) 
-                && isRed(node.right) 
-                && isRed(node.right.left) 
+            rotateLeft(node.left);
+        } else if ((node.right != null)
+                && isRed(node.right)
+                && isRed(node.right.left)
                 && !isRed(node.left)) {
-            node.right = rotateRight(node.right);
+            rotateRight(node.right);
         }
 
         /**
          * Third situation. The inserted node and its parent are red. Parents
-         * sibling is black and the inserted node is the same child as the parent
-         * node is the child of the grandparent. 
+         * sibling is black and the inserted node is the same child as the
+         * parent node is the child of the grandparent.
          */
-        if ((node.left != null) 
-                && isRed(node.left) 
-                && isRed(node.left.left) 
+        if ((node.left != null)
+                && isRed(node.left)
+                && isRed(node.left.left)
                 && !isRed(node.right)) {
-            node = rotateRight(node);
-            node.right.color = Color.RED;
-            node.color = Color.BLACK;
-        } else if ((node.right != null) 
-                && isRed(node.right) 
-                && isRed(node.right.right) 
+            rotateRight(node);
+            node.parent.right.color = Color.RED;
+            node.parent.color = Color.BLACK;
+        } else if ((node.right != null)
+                && isRed(node.right)
+                && isRed(node.right.right)
                 && !isRed(node.left)) {
-            node = rotateLeft(node);
-            node.left.color = Color.RED;
-            node.color = Color.BLACK;
+            rotateLeft(node);
+            node.parent.left.color = Color.RED;
+            node.parent.color = Color.BLACK;
         }
 
-        return node;
+        if (node.parent != null) {
+            rebalanceInsert(node.parent);
+        }
     }
-    
+
     private RedBlackNode<T> rebalanceDelete(RedBlackNode<T> node) {
-        
-        
-        
+
         return node;
     }
 
@@ -307,14 +332,32 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
      * @param node the node where to rotate
      * @return new rotated tree
      */
-    private RedBlackNode<T> rotateLeft(RedBlackNode<T> node) {
+    private void rotateLeft(RedBlackNode<T> node) {
         RedBlackNode<T> newRoot = node.right;
-        node.right = newRoot.left;
-        newRoot.left = node;
+        RedBlackNode<T> parent = node.parent;
 
-        //updateHeight(node);
-        //updateHeight(newRoot);
-        return newRoot;
+        if (node == root) {
+            root = newRoot;
+        }
+
+        newRoot.parent = parent;
+
+        if (parent != null) {
+            if (parent.value.compareTo(newRoot.value) < 0) {
+                parent.right = newRoot;
+            } else {
+                parent.left = newRoot;
+            }
+        }
+
+        node.right = newRoot.left;
+        if (newRoot.left != null) {
+            newRoot.left.parent = node;
+        }
+
+        newRoot.left = node;
+        node.parent = newRoot;
+
     }
 
     /**
@@ -323,35 +366,32 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
      * @param node the node where to rotate
      * @return new rotated tree
      */
-    private RedBlackNode<T> rotateRight(RedBlackNode<T> node) {
+    private void rotateRight(RedBlackNode<T> node) {
         RedBlackNode<T> newRoot = node.left;
+        RedBlackNode<T> parent = node.parent;
+
+        if (node == root) {
+            root = newRoot;
+        }
+
+        newRoot.parent = parent;
+
+        if (parent != null) {
+            if (parent.value.compareTo(newRoot.value) < 0) {
+                parent.right = newRoot;
+            } else {
+                parent.left = newRoot;
+            }
+        }
+
         node.left = newRoot.right;
+        if (newRoot.right != null) {
+            newRoot.right.parent = node;
+        }
+
         newRoot.right = node;
+        node.parent = newRoot;
 
-        //node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
-        //newRoot.height = Math.max(getHeight(newRoot.left), getHeight(newRoot.right)) + 1;
-        return newRoot;
     }
 
-    /**
-     * Rotates tree first left the right
-     *
-     * @param node the node where to rotate
-     * @return new rotated tree
-     */
-    private RedBlackNode<T> rotateLeftRight(RedBlackNode<T> node) {
-        node.left = rotateLeft(node.left);
-        return rotateRight(node);
-    }
-
-    /**
-     * Rotates tree first right then left
-     *
-     * @param node the node where to rotate
-     * @return new rotated tree
-     */
-    private RedBlackNode<T> rotateRightLeft(RedBlackNode<T> node) {
-        node.right = rotateRight(node.right);
-        return rotateLeft(node);
-    }
 }
