@@ -34,4 +34,6 @@ public interface BinarySearchTree<T extends Comparable<? super T>>{
     public T find(T key);
     public void clear();
     public boolean isEmpty();
+    public T findMin();
+    public T findMax();
 }

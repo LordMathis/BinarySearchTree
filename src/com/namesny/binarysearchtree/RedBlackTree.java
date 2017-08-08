@@ -26,7 +26,7 @@ package com.namesny.binarysearchtree;
 /**
  * Implementation of Red-Black tree, a self-balancing binary search tree
  * http://en.wikipedia.org/wiki/Red%E2%80%93black_tree
- * 
+ *
  * @author Matúš Námešný
  */
 public class RedBlackTree<T extends Comparable<? super T>> implements BinarySearchTree<T> {
@@ -42,7 +42,8 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
     /**
      * This class represents a node of a Red-Black tree
-     * @param <T> 
+     *
+     * @param <T>
      */
     protected static class RedBlackNode<T extends Comparable<? super T>> {
 
@@ -50,17 +51,17 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * Node value
          */
         protected T value;
-        
+
         /**
          * Left child
          */
         protected RedBlackNode<T> left;
-        
+
         /**
          * Right child
          */
         protected RedBlackNode<T> right;
-        
+
         /**
          * Node color
          */
@@ -68,7 +69,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
         /**
          * Creates one node
-         * 
+         *
          * @param value node value
          * @param left left child
          * @param right right child
@@ -81,8 +82,8 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
         /**
          * Creates one node without children
-         * 
-         * @param value 
+         *
+         * @param value
          */
         public RedBlackNode(T value) {
             this(value, null, null);
@@ -90,7 +91,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     }
 
     /**
-     * Represents the color of a node 
+     * Represents the color of a node
      */
     private static enum Color {
         RED, BLACK
@@ -118,6 +119,16 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
     @Override
     public boolean isEmpty() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public T findMin() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public T findMax() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

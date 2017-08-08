@@ -140,6 +140,26 @@ public class AVLTree<T extends Comparable<? super T>> implements BinarySearchTre
     public boolean isEmpty() {
         return root == null;
     }
+    
+    /**
+     * Finds minimal value in the tree
+     * 
+     * @return minimum 
+     */
+    @Override
+    public T findMin() {
+        return findMin(root).value;
+    }
+    
+    /**
+     * Finds maximal value in the tree
+     * 
+     * @return maximum 
+     */
+    @Override
+    public T findMax() {
+        return findMax(root).value;
+    }
 
     /**
      * Finds minimum in the given subtree
@@ -148,10 +168,26 @@ public class AVLTree<T extends Comparable<? super T>> implements BinarySearchTre
      * @return object with minimal value 
      */
     private AVLNode<T> findMin(AVLNode<T> node) {
+        // The leftmost node is the node with minimal value
         while (node.left != null) {
             node = node.left;
         }
 
+        return node;
+    }
+    
+    /**
+     * Finds maximum in the given subtree
+     * 
+     * @param node root of the subtree
+     * @return object with maximal value
+     */
+    private AVLNode<T> findMax(AVLNode<T> node) {
+        // The rightmost node is the node with maximal value
+        while (node.right != null) {
+            node = node.right;
+        }
+        
         return node;
     }
 
