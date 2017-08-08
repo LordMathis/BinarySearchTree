@@ -261,13 +261,14 @@ public class AVLTree<T extends Comparable<? super T>> implements BinarySearchTre
         } else if (value.compareTo(node.value) < 0) {
             // delete it from the left subtree
             node.left = delete(value, node.left);
-            node = rebalance(node);
+            //node = rebalance(node);
         } else {
             // delete it from the right subtree
             node.right = delete(value, node.right);
-            node = rebalance(node);
+            //node = rebalance(node);
         }
 
+        node = rebalance(node);
         return node;
     }
 
@@ -318,6 +319,11 @@ public class AVLTree<T extends Comparable<? super T>> implements BinarySearchTre
      * @param root the root of a subtree to re-balance
      */
     private AVLNode<T> rebalance(AVLNode<T> node) {
+        
+        if (node == null) {
+            return null;
+        }
+        
         updateHeight(node);
         int balance = getHeight(node.right) - getHeight(node.left);
 
