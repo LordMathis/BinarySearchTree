@@ -280,11 +280,15 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
                 && isRed(node.left.left) 
                 && !isRed(node.right)) {
             node = rotateRight(node);
+            node.right.color = Color.RED;
+            node.color = Color.BLACK;
         } else if ((node.right != null) 
                 && isRed(node.right) 
                 && isRed(node.right.right) 
                 && !isRed(node.left)) {
             node = rotateLeft(node);
+            node.left.color = Color.RED;
+            node.color = Color.BLACK;
         }
 
         return node;
