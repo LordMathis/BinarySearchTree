@@ -129,7 +129,7 @@ public class RedBlackTreeTest {
         for (int i = 0; i < n; i++) {
             System.out.println("Test random input " + (i+1));
             int numbers = k * (i+1);
-            for (int j = 0; j < k; j++) {
+            for (int j = 0; j < numbers; j++) {
                 instance.insert(random.nextInt());
             }
             assertTrue(isValidRedBlackTree(instance.root));

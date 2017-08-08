@@ -23,6 +23,7 @@
  */
 package com.namesny.binarysearchtree;
 
+import java.util.Random;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,6 +131,20 @@ public class AVLTreeTest {
         System.out.println("Test right-left rotation");
         insertMore(2, 3, 1);
         assertTrue(isValidAVLTree(instance.root));
+
+        instance.clear();
+        int k = 50;
+        int n = 5;
+        Random random = new Random();
+
+        for (int i = 0; i < n; i++) {
+            System.out.println("Test random input " + (i + 1));
+            int numbers = k * (i + 1);
+            for (int j = 0; j < numbers; j++) {
+                instance.insert(random.nextInt());
+            }
+            assertTrue(isValidAVLTree(instance.root));
+        }
     }
 
     @Test(expected = DuplicateValueException.class)
