@@ -212,7 +212,7 @@ public class RedBlackTreeTest {
     public void testFindMax() throws DuplicateValueException {
         System.out.println("Test findMax");
 
-        insertMore(5, 4, 3);
+        insertMore(5, 4, 3, 2, 1);
         System.out.println("Insert values 5,4,3,2,1");
         assertEquals("Max should be 5", new Integer(5), instance.findMax());
 
