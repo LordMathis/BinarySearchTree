@@ -23,6 +23,7 @@
  */
 package com.namesny.binarysearchtree;
 
+import java.util.Random;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,13 +92,18 @@ public class RedBlackTreeTest {
         int left = checkBlackHeightWorker(node.left);
         int right = checkBlackHeightWorker(node.right);
         if (left == right) {
-            return left + 1;
+            return instance.isRed(node) ? left : left + 1;
         } else {
             return -1;
         }
     }
 
     private boolean checkTwoRedNodes(RedBlackTree.RedBlackNode<Integer> node) {
+
+        if (node == null) {
+            return true;
+        }
+
         if (instance.isRed(node) && (instance.isRed(node.left) || instance.isRed(node.right))) {
             return false;
         } else {
@@ -116,42 +122,18 @@ public class RedBlackTreeTest {
     public void testInsert() throws DuplicateValueException {
         System.out.println("Test insert");
 
-        System.out.println("Test first situation");
+        int k = 50;
+        int n = 5;
+        Random random = new Random();
 
-        insertMore(5, 6, 3, 1);
-        assertTrue(isValidRedBlackTree(instance.root));
-        instance.clear();
-        insertMore(5, 6, 4, 7);
-        assertTrue(isValidRedBlackTree(instance.root));
-        instance.clear();
-
-        System.out.println("Test second situation");
-
-        insertMore(5, 8, 3);
-        instance.root.right.color = RedBlackTree.Color.BLACK;
-        insertMore(4);
-        assertTrue(isValidRedBlackTree(instance.root));
-        instance.clear();
-
-        insertMore(5, 8, 3);
-        instance.root.left.color = RedBlackTree.Color.BLACK;
-        insertMore(7);
-        assertTrue(isValidRedBlackTree(instance.root));
-        instance.clear();
-
-        System.out.println("Test third situation");
-
-        insertMore(5, 8, 3);
-        instance.root.right.color = RedBlackTree.Color.BLACK;
-        insertMore(1);
-        assertTrue(isValidRedBlackTree(instance.root));
-        instance.clear();
-
-        insertMore(5, 8, 3);
-        instance.root.left.color = RedBlackTree.Color.BLACK;
-        insertMore(10);
-        assertTrue(isValidRedBlackTree(instance.root));
-        
+        for (int i = 0; i < n; i++) {
+            System.out.println("Test random input " + (i+1));
+            int numbers = k * (i+1);
+            for (int j = 0; j < k; j++) {
+                instance.insert(random.nextInt());
+            }
+            assertTrue(isValidRedBlackTree(instance.root));
+        }
 
     }
 
