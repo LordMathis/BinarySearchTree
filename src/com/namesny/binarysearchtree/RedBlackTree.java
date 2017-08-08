@@ -219,7 +219,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         }
     }
 
-    protected static boolean isRed(RedBlackNode<T> node) {
+    protected boolean isRed(RedBlackNode<T> node) {
         return (node != null) && (node.color == Color.RED);
     }
 

@@ -151,32 +151,6 @@ public class RedBlackTreeTest {
     }
 
     /**
-     * Test of clear method, of class RedBlackTree.
-     */
-    @Test
-    public void testClear() {
-        System.out.println("clear");
-        RedBlackTree instance = new RedBlackTree();
-        instance.clear();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of isEmpty method, of class RedBlackTree.
-     */
-    @Test
-    public void testIsEmpty() {
-        System.out.println("isEmpty");
-        RedBlackTree instance = new RedBlackTree();
-        boolean expResult = false;
-        boolean result = instance.isEmpty();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
      * Test of findMin method, of class RedBlackTree.
      */
     @Test
