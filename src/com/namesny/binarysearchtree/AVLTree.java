@@ -287,9 +287,9 @@ public class AVLTree<T extends Comparable<? super T>> implements BinarySearchTre
         if (node.value == key) {
             return node.value;
         } else if (key.compareTo(node.value) < 0) {
-            return (T) find(key, node.left);
+            return find(key, node.left);
         } else {
-            return (T) find(key, node.right);
+            return find(key, node.right);
         }
     }
 

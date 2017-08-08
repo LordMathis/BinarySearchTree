@@ -34,7 +34,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     /**
      * Tree root
      */
-    protected RedBlackNode root;
+    protected RedBlackNode<T> root;
 
     public RedBlackTree() {
         root = null;
@@ -74,7 +74,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * @param left left child
          * @param right right child
          */
-        public RedBlackNode(T value, RedBlackNode left, RedBlackNode right) {
+        public RedBlackNode(T value, RedBlackNode<T> left, RedBlackNode<T> right) {
             this.value = value;
             this.left = left;
             this.right = right;
@@ -98,37 +98,123 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     }
 
     @Override
-    public void insert(T value) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void insert(T value) throws DuplicateValueException {
+        insert(value, root);
     }
 
     @Override
     public void delete(T key) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        delete(key, root);
     }
 
     @Override
     public T find(T key) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return find(key, root);
     }
 
     @Override
     public void clear() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.root = null;
     }
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return root == null;
     }
 
     @Override
     public T findMin() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return findMin(root).value;
     }
 
     @Override
     public T findMax() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return findMax(root).value;
+    }
+
+    private RedBlackNode<T> insert(T value, RedBlackNode<T> node) throws DuplicateValueException {
+
+        // We found the place where to insert the value
+        if (node == null) {
+            // Create new node with the value
+            node = new RedBlackNode<>(value);
+
+        } else if (value.compareTo(node.value) < 0) {
+            // Insert into left subtree
+            node.left = insert(value, node.left);
+
+        } else if (value.compareTo(node.value) > 0) {
+            // Insert into right subtree 
+            node.right = insert(value, node.right);
+
+        } else {
+            // The tree already contains the value
+            throw new DuplicateValueException("Duplicate value: " + value);
+        }
+
+        //node = rebalance(node);
+        return node;
+    }
+    
+    private RedBlackNode<T> delete(T value, RedBlackNode<T> node) {
+        
+        if (node == null) {
+            return null;
+        }
+        
+        if (node.value == value) {
+            
+            if ((node.left == null) && (node.right == null)) {
+                node = null;
+            } else if (node.left == null) {
+                node = node.right;                
+            } else if (node.right == null) {
+                node = node.left;
+            } else {
+                RedBlackNode<T> successor = findMin(node.right);
+
+                node.value = successor.value;
+                node = delete(successor.value, node);
+            }            
+            
+            
+        } else if (value.compareTo(node.value) < 0) {
+            node = delete(value, node.left);
+        } else {
+            node = delete(value, node.right);
+        }
+        
+        //node = rebalance(node);
+        return node;
+    }
+    
+    private RedBlackNode<T> findMin(RedBlackNode<T> node) {
+        while(node.left != null) {
+            node = node.left;
+        }
+        
+        return node;
+    }
+    
+    private RedBlackNode<T> findMax(RedBlackNode<T> node) {
+        while(node.right != null) {
+            node = node.right;
+        }
+        
+        return node;
+    }
+    
+    private T find(T key, RedBlackNode<T> node) {
+        if (node == null) {
+            return null;
+        } 
+        
+        if (node.value == key) {
+            return node.value;
+        } else if (key.compareTo(node.value) < 0) {
+            return find(key, node.left);
+        } else {
+            return find(key, node.right);
+        }
     }
 }
