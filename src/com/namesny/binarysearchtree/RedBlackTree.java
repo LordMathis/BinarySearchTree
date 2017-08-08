@@ -100,12 +100,12 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
     @Override
     public void insert(T value) throws DuplicateValueException {
-        insert(value, root);
+        root = insert(value, root);
     }
 
     @Override
     public void delete(T key) {
-        delete(key, root);
+        root = delete(key, root);
     }
 
     @Override
