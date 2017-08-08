@@ -94,7 +94,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     /**
      * Represents the color of a node
      */
-    private static enum Color {
+    protected static enum Color {
         RED, BLACK
     }
 
