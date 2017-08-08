@@ -225,16 +225,26 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
     private RedBlackNode<T> rebalanceInsert(RedBlackNode<T> node) {
 
+        if (node.left == null && node.right == null) {
+            return node;
+        }
+        
         /**
          * First situation. The inserted node, its parent and its uncle are red.
          * This is corrected two levels up, so node variable represents the grandparent
          * of the inserted node. Split into two ifs for readability
          */
-        if ((isRed(node.left.left) || isRed(node.left.right)) && isRed(node.left) && isRed(node.right)) {
+        if ((node.left != null)
+                && (isRed(node.left.left) || isRed(node.left.right))
+                && isRed(node.left) 
+                && isRed(node.right)) {
             node.left.color = Color.BLACK;
             node.right.color = Color.BLACK;
             node.color = Color.RED;
-        } else if ((isRed(node.right.left) || isRed(node.right.right)) && isRed(node.right) && isRed(node.right)) {
+        } else if ((node.right != null) 
+                && (isRed(node.right.left) || isRed(node.right.right)) 
+                && isRed(node.right) 
+                && isRed(node.right)) {
             node.right.color = Color.BLACK;
             node.left.color = Color.BLACK;
             node.color = Color.RED;
@@ -247,9 +257,15 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * grandfather of the inserted node. This does not fix the problem but
          * instead it transforms it into third situation
          */
-        if (isRed(node.left) && isRed(node.left.right) && !isRed(node.right)) {
+        if ((node.left != null) 
+                && isRed(node.left) 
+                && isRed(node.left.right) 
+                && !isRed(node.right)) {
             node.left = rotateLeft(node.left);
-        } else if (isRed(node.right) && isRed(node.right.left) && !isRed(node.left)) {
+        } else if ((node.right != null) 
+                && isRed(node.right) 
+                && isRed(node.right.left) 
+                && !isRed(node.left)) {
             node.right = rotateRight(node.right);
         }
 
@@ -258,9 +274,15 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * sibling is black and the inserted node is the same child as the parent
          * node is the child of the grandparent. 
          */
-        if (isRed(node.left) && isRed(node.left.left) && !isRed(node.right)) {
+        if ((node.left != null) 
+                && isRed(node.left) 
+                && isRed(node.left.left) 
+                && !isRed(node.right)) {
             node = rotateRight(node);
-        } else if (isRed(node.right) && isRed(node.right.right) && !isRed(node.left)) {
+        } else if ((node.right != null) 
+                && isRed(node.right) 
+                && isRed(node.right.right) 
+                && !isRed(node.left)) {
             node = rotateLeft(node);
         }
 
