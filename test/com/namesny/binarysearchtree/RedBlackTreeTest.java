@@ -23,6 +23,8 @@
  */
 package com.namesny.binarysearchtree;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import org.junit.After;
 import org.junit.Before;
@@ -121,21 +123,21 @@ public class RedBlackTreeTest {
     @Test
     public void testInsert() throws DuplicateValueException {
         System.out.println("Test insert");
-        
+
         System.out.println("Test case 1");
-        insertMore(5,3,7,1);
+        insertMore(5, 3, 7, 1);
         assertTrue(isValidRedBlackTree(instance.root));
 
         instance.clear();
 
         System.out.println("Test case 2");
-        insertMore(5,1,3);
+        insertMore(5, 1, 3);
         assertTrue(isValidRedBlackTree(instance.root));
 
         instance.clear();
 
         System.out.println("Test case 3");
-        insertMore(5,3,1);
+        insertMore(5, 3, 1);
         assertTrue(isValidRedBlackTree(instance.root));
 
         instance.clear();
@@ -145,8 +147,8 @@ public class RedBlackTreeTest {
         Random random = new Random();
 
         for (int i = 0; i < n; i++) {
-            System.out.println("Test random input " + (i+1));
-            int numbers = k * (i+1);
+            System.out.println("Test random input " + (i + 1));
+            int numbers = k * (i + 1);
             for (int j = 0; j < numbers; j++) {
                 instance.insert(random.nextInt());
             }
@@ -160,11 +162,26 @@ public class RedBlackTreeTest {
     @Test
     public void testDelete() throws DuplicateValueException {
         System.out.println("Test delete");
-        insertMore(1,2,3,4,5,6,7,8,9,10);
-        instance.delete(5);
-        instance.delete(6);
-        instance.delete(10);
-        instance.delete(1);
+
+        int maxInsert = 500;
+        Random random = new Random();
+        List<Integer> numbers = new ArrayList<>();
+
+        for (int j = 0; j < maxInsert; j++) {
+            int number = random.nextInt();
+            numbers.add(number);
+            instance.insert(number);
+        }
+
+        int maxDelete = 100;
+        for (int i = 0; i < maxDelete; i++) {
+            int index = random.nextInt(numbers.size());
+            instance.delete(numbers.remove(index));
+            if (i % 10 == 0) {
+                assertTrue(isValidRedBlackTree(instance.root));
+            }
+        }
+
         assertTrue(isValidRedBlackTree(instance.root));
     }
 
