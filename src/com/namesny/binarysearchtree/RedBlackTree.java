@@ -94,12 +94,12 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          */
         public RedBlackNode(T value, RedBlackNode<T> parent) {
             this(value, new RedBlackNode<T>(), new RedBlackNode<T>(), Color.RED, parent);
-        }        
+        }
 
         public RedBlackNode() {
             this(null, null, null, Color.BLACK, null);
         }
-        
+
     }
 
     /**
@@ -110,14 +110,15 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     }
 
     /**
-     * 
-     * @param value
-     * @throws DuplicateValueException 
+     * Inserts the value to the tree and re-balances it if necessary
+     *
+     * @param value value to insert
+     * @throws DuplicateValueException
      * @throws IllegalArgumentException
      */
     @Override
     public void insert(T value) throws DuplicateValueException {
-        
+
         if (value == null) {
             throw new IllegalArgumentException("Value cannot be null");
         }
@@ -158,8 +159,10 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     }
 
     /**
-     * 
-     * @param key 
+     * Deletes an object equal to the key from the tree and re-balances it if
+     * necessary
+     *
+     * @param key key to delete
      * @throws IllegalArgumentException
      */
     @Override
@@ -171,9 +174,10 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     }
 
     /**
-     * 
+     * Finds an object equal to key
+     *
      * @param key
-     * @return 
+     * @return the object equal to key
      * @throws IllegalArgumentException
      */
     @Override
@@ -184,27 +188,52 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         return find(key, root);
     }
 
+    /**
+     * Clears the tree
+     */
     @Override
     public void clear() {
         this.root = new RedBlackNode<>();
     }
 
+    /**
+     *
+     * @return True if the tree is empty
+     */
     @Override
     public boolean isEmpty() {
         return root.value == null;
     }
 
+    /**
+     * Finds minimum in the tree
+     *
+     * @return Object with minimal value
+     */
     @Override
     public T findMin() {
         return findMin(root).value;
     }
 
+    /**
+     * Finds maximum in the tree
+     *
+     * @return Object with maximal value
+     */
     @Override
     public T findMax() {
         return findMax(root).value;
     }
 
+    /**
+     * Helper method for deleting a node from the tree
+     *
+     * @param key the key to delete
+     * @param node root of a subtree from which to delete the object
+     */
     private void delete(T key, RedBlackNode<T> node) {
+
+        // First we need to find the node we want to delete
         while ((node.value != null) && (node.value != key)) {
             if (key.compareTo(node.value) < 0) {
                 node = node.left;
@@ -213,10 +242,12 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
             }
         }
 
+        // if the node doesn't exist
         if (node.value == null) {
             return;
         }
 
+        // The node has two children
         if ((node.left.value != null) && (node.right.value != null)) {
 
             RedBlackNode<T> successor = findMin(node.right);
@@ -224,6 +255,8 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
             delete(successor.value, node);
 
         } else {
+
+            // The node has at most one internal child
             RedBlackNode<T> child = node.left.value != null ? node.left : node.right;
 
             // Deleted node is Red => just replace it with its child
@@ -248,9 +281,8 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
                     child.parent = node.parent;
 
-                    // Deleted node is black and has a black child
                 } else {
-
+                    // Deleted node is black and has a black child
                     if (node.parent.left == node) {
                         node.parent.left = child;
                     } else {
@@ -264,7 +296,15 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         }
     }
 
+    /**
+     * Helper method for finding minimum
+     *
+     * @param node root of a subtree where to find minimum
+     * @return the node with minimal value
+     */
     private RedBlackNode<T> findMin(RedBlackNode<T> node) {
+
+        // Minimum is in the leftmost node
         while (node.left.value != null) {
             node = node.left;
         }
@@ -272,7 +312,15 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         return node;
     }
 
+    /**
+     * Helper method for finding maximum
+     *
+     * @param node root of a subtree where to find minimum
+     * @return the node with maximal value
+     */
     private RedBlackNode<T> findMax(RedBlackNode<T> node) {
+
+        // Maximum is in the rightmost node
         while (node.right.value != null) {
             node = node.right;
         }
@@ -280,8 +328,16 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         return node;
     }
 
+    /**
+     * Helper method for finding a node in the tree
+     *
+     * @param key the value of a node we are looking for
+     * @param node root of a subtree where to look
+     * @return the node with a value equal to key
+     */
     private T find(T key, RedBlackNode<T> node) {
 
+        // Traverse the tree until we find the value or an external node
         while ((node.value != null) && (node.value != key)) {
             if (key.compareTo(node.value) < 0) {
                 node = node.left;
@@ -293,10 +349,21 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         return node.value;
     }
 
+    /**
+     * Determines the color of a node
+     *
+     * @param node the node which color we want to know
+     * @return True if the node is red
+     */
     protected boolean isRed(RedBlackNode<T> node) {
         return (node.value != null) && (node.color == Color.RED);
     }
 
+    /**
+     * Re-balances the tree after an insertion
+     *
+     * @param node root of a subtree that needs re-balancing
+     */
     private void rebalanceInsert(RedBlackNode<T> node) {
 
         /**
