@@ -121,6 +121,24 @@ public class RedBlackTreeTest {
     @Test
     public void testInsert() throws DuplicateValueException {
         System.out.println("Test insert");
+        
+        System.out.println("Test case 1");
+        insertMore(5,3,7,1);
+        assertTrue(isValidRedBlackTree(instance.root));
+
+        instance.clear();
+
+        System.out.println("Test case 2");
+        insertMore(5,1,3);
+        assertTrue(isValidRedBlackTree(instance.root));
+
+        instance.clear();
+
+        System.out.println("Test case 3");
+        insertMore(5,3,1);
+        assertTrue(isValidRedBlackTree(instance.root));
+
+        instance.clear();
 
         int k = 50;
         int n = 5;
