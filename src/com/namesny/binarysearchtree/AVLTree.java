@@ -96,9 +96,13 @@ public class AVLTree<T extends Comparable<? super T>> implements BinarySearchTre
      *
      * @param value the value to insert
      * @throws DuplicateValueException
+     * @throws IllegalArgumentException
      */
     @Override
     public void insert(T value) throws DuplicateValueException {
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
         this.root = insert(value, root);
     }
 
@@ -106,9 +110,13 @@ public class AVLTree<T extends Comparable<? super T>> implements BinarySearchTre
      * Deletes the value from the tree
      *
      * @param value the value to be deleted
+     * @throws IllegalArgumentException
      */
     @Override
     public void delete(T value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
         this.root = delete(value, root);
     }
 
@@ -116,10 +124,14 @@ public class AVLTree<T extends Comparable<? super T>> implements BinarySearchTre
      * Finds object equal to key in the tree
      * 
      * @param key
-     * @return returns 
+     * @return returns the object equal to key
+     * @throws IllegalArgumentException
      */
     @Override
     public T find(T key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
         return find(key, root);
     }
 

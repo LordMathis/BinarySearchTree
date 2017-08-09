@@ -109,8 +109,18 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         RED, BLACK
     }
 
+    /**
+     * 
+     * @param value
+     * @throws DuplicateValueException 
+     * @throws IllegalArgumentException
+     */
     @Override
     public void insert(T value) throws DuplicateValueException {
+        
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
 
         if (root.value == null) {
             root = new RedBlackNode<>(value, null);
@@ -147,13 +157,30 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
         root.color = Color.BLACK;
     }
 
+    /**
+     * 
+     * @param key 
+     * @throws IllegalArgumentException
+     */
     @Override
     public void delete(T key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
         delete(key, root);
     }
 
+    /**
+     * 
+     * @param key
+     * @return 
+     * @throws IllegalArgumentException
+     */
     @Override
     public T find(T key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
         return find(key, root);
     }
 
