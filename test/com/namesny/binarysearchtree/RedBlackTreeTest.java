@@ -57,7 +57,7 @@ public class RedBlackTreeTest {
     }
 
     private boolean isOrdered(RedBlackTree.RedBlackNode<Integer> node) {
-        if (node.left != null) {
+        if (node.left.value != null) {
             if (node.left.value.compareTo(node.value) > 0) {
                 return false;
             } else {
@@ -65,7 +65,7 @@ public class RedBlackTreeTest {
             }
         }
 
-        if (node.right != null) {
+        if (node.right.value != null) {
             if (node.right.value.compareTo(node.value) < 0) {
                 return false;
             } else {
@@ -158,13 +158,14 @@ public class RedBlackTreeTest {
      * Test of delete method, of class RedBlackTree.
      */
     @Test
-    public void testDelete() {
-        System.out.println("delete");
-        //Object key = null;
-        //RedBlackTree instance = new RedBlackTree();
-        //instance.delete(key);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testDelete() throws DuplicateValueException {
+        System.out.println("Test delete");
+        insertMore(1,2,3,4,5,6,7,8,9,10);
+        instance.delete(5);
+        instance.delete(6);
+        instance.delete(10);
+        instance.delete(1);
+        assertTrue(isValidRedBlackTree(instance.root));
     }
 
     /**

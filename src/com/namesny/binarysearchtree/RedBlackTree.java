@@ -37,7 +37,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     protected RedBlackNode<T> root;
 
     public RedBlackTree() {
-        root = null;
+        root = new RedBlackNode<T>();
     }
 
     /**
@@ -79,11 +79,12 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * @param left left child
          * @param right right child
          */
-        public RedBlackNode(T value, RedBlackNode<T> left, RedBlackNode<T> right, Color color) {
+        public RedBlackNode(T value, RedBlackNode<T> left, RedBlackNode<T> right, Color color, RedBlackNode<T> parent) {
             this.value = value;
             this.left = left;
             this.right = right;
             this.color = color;
+            this.parent = parent;
         }
 
         /**
@@ -91,9 +92,14 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          *
          * @param value
          */
-        public RedBlackNode(T value) {
-            this(value, null, null, Color.RED);
+        public RedBlackNode(T value, RedBlackNode<T> parent) {
+            this(value, new RedBlackNode<T>(), new RedBlackNode<T>(), Color.RED, parent);
+        }        
+
+        public RedBlackNode() {
+            this(null, null, null, Color.BLACK, null);
         }
+        
     }
 
     /**
@@ -106,14 +112,15 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     @Override
     public void insert(T value) throws DuplicateValueException {
 
-        if (root == null) {
-            root = new RedBlackNode<>(value);
-            root.parent = null;
+        if (root.value == null) {
+            root = new RedBlackNode<>(value, null);
+            root.left.parent = root;
+            root.right.parent = root;
         } else {
 
             RedBlackNode<T> node = root;
             RedBlackNode<T> previous = null;
-            while (node != null) {
+            while (node.value != null) {
                 if (value.compareTo(node.value) < 0) {
                     previous = node;
                     node = node.left;
@@ -125,8 +132,9 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
                 }
             }
 
-            node = new RedBlackNode<>(value);
-            node.parent = previous;
+            node = new RedBlackNode<>(value, previous);
+            node.left.parent = node;
+            node.right.parent = node;
             if (value.compareTo(previous.value) < 0) {
                 previous.left = node;
             } else {
@@ -141,7 +149,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
     @Override
     public void delete(T key) {
-
+        delete(key, root);
     }
 
     @Override
@@ -151,12 +159,12 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
     @Override
     public void clear() {
-        this.root = null;
+        this.root = new RedBlackNode<>();
     }
 
     @Override
     public boolean isEmpty() {
-        return root == null;
+        return root.value == null;
     }
 
     @Override
@@ -170,8 +178,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     }
 
     private void delete(T key, RedBlackNode<T> node) {
-
-        while ((node != null) && (node.value != key)) {
+        while ((node.value != null) && (node.value != key)) {
             if (key.compareTo(node.value) < 0) {
                 node = node.left;
             } else {
@@ -179,48 +186,59 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
             }
         }
 
-        if (node == null) {
+        if (node.value == null) {
             return;
         }
 
-        if ((node.left != null) && (node.right != null)) {
+        if ((node.left.value != null) && (node.right.value != null)) {
 
             RedBlackNode<T> successor = findMin(node.right);
             node.value = successor.value;
             delete(successor.value, node);
 
         } else {
-            RedBlackNode<T> child = node.left != null ? node.left : node.right;
+            RedBlackNode<T> child = node.left.value != null ? node.left : node.right;
 
             // Deleted node is Red => just replace it with its child
-            if (node.color == Color.RED) {
+            if (isRed(node)) {
                 if (node.parent.left == node) {
                     node.parent.left = child;
                 } else {
                     node.parent.right = child;
                 }
+                child.parent = node.parent;
 
             } else {
-                // Deleted node is black but has a red child
-                if (child.color == Color.RED) {
+                // Deleted node is black but has a red child => recolor the child
+                if (isRed(child)) {
                     child.color = Color.BLACK;
+
                     if (node.parent.left == node) {
                         node.parent.left = child;
                     } else {
                         node.parent.right = child;
                     }
 
+                    child.parent = node.parent;
+
                     // Deleted node is black and has a black child
                 } else {
 
+                    if (node.parent.left == node) {
+                        node.parent.left = child;
+                    } else {
+                        node.parent.right = child;
+                    }
+
+                    child.parent = node.parent;
+                    rebalanceDelete(child);
                 }
             }
-
         }
     }
 
     private RedBlackNode<T> findMin(RedBlackNode<T> node) {
-        while (node.left != null) {
+        while (node.left.value != null) {
             node = node.left;
         }
 
@@ -228,7 +246,7 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     }
 
     private RedBlackNode<T> findMax(RedBlackNode<T> node) {
-        while (node.right != null) {
+        while (node.right.value != null) {
             node = node.right;
         }
 
@@ -236,21 +254,20 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
     }
 
     private T find(T key, RedBlackNode<T> node) {
-        if (node == null) {
-            return null;
+
+        while ((node.value != null) && (node.value != key)) {
+            if (key.compareTo(node.value) < 0) {
+                node = node.left;
+            } else {
+                node = node.right;
+            }
         }
 
-        if (node.value == key) {
-            return node.value;
-        } else if (key.compareTo(node.value) < 0) {
-            return find(key, node.left);
-        } else {
-            return find(key, node.right);
-        }
+        return node.value;
     }
 
     protected boolean isRed(RedBlackNode<T> node) {
-        return (node != null) && (node.color == Color.RED);
+        return (node.value != null) && (node.color == Color.RED);
     }
 
     private void rebalanceInsert(RedBlackNode<T> node) {
@@ -260,14 +277,14 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * This is corrected two levels up, so node variable represents the
          * grandparent of the inserted node. Split into two ifs for readability
          */
-        if ((node.left != null)
+        if ((node.left.value != null)
                 && (isRed(node.left.left) || isRed(node.left.right))
                 && isRed(node.left)
                 && isRed(node.right)) {
             node.left.color = Color.BLACK;
             node.right.color = Color.BLACK;
             node.color = Color.RED;
-        } else if ((node.right != null)
+        } else if ((node.right.value != null)
                 && (isRed(node.right.left) || isRed(node.right.right))
                 && isRed(node.right)
                 && isRed(node.left)) {
@@ -283,12 +300,12 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * grandfather of the inserted node. This does not fix the problem but
          * instead it transforms it into third situation
          */
-        if ((node.left != null)
+        if ((node.left.value != null)
                 && isRed(node.left)
                 && isRed(node.left.right)
                 && !isRed(node.right)) {
             rotateLeft(node.left);
-        } else if ((node.right != null)
+        } else if ((node.right.value != null)
                 && isRed(node.right)
                 && isRed(node.right.left)
                 && !isRed(node.left)) {
@@ -300,14 +317,14 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
          * sibling is black and the inserted node is the same child as the
          * parent node is the child of the grandparent.
          */
-        if ((node.left != null)
+        if ((node.left.value != null)
                 && isRed(node.left)
                 && isRed(node.left.left)
                 && !isRed(node.right)) {
             rotateRight(node);
             node.parent.right.color = Color.RED;
             node.parent.color = Color.BLACK;
-        } else if ((node.right != null)
+        } else if ((node.right.value != null)
                 && isRed(node.right)
                 && isRed(node.right.right)
                 && !isRed(node.left)) {
@@ -316,14 +333,10 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
             node.parent.color = Color.BLACK;
         }
 
+        // Rebalance parent
         if (node.parent != null) {
             rebalanceInsert(node.parent);
         }
-    }
-
-    private RedBlackNode<T> rebalanceDelete(RedBlackNode<T> node) {
-
-        return node;
     }
 
     /**
@@ -357,7 +370,6 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
         newRoot.left = node;
         node.parent = newRoot;
-
     }
 
     /**
@@ -391,7 +403,116 @@ public class RedBlackTree<T extends Comparable<? super T>> implements BinarySear
 
         newRoot.right = node;
         node.parent = newRoot;
+    }
 
+    /**
+     * Re-balances the tree after deleting a node.
+     *
+     * @param node double-black node that needs re-balancing
+     */
+    private void rebalanceDelete(RedBlackNode<T> node) {
+
+        if (node == root) {
+            return;
+        }
+
+        /*
+         * If the double-black node is left child
+         * The cases for the node being right child are symetrical
+         */
+        if (node.parent.left == node) {
+            RedBlackNode<T> sibling = node.parent.right;
+
+            // Case 1: The sibling of the double-black node is red
+            if (isRed(sibling)) {
+                node.parent.color = Color.RED;
+                sibling.color = Color.BLACK;
+                rotateLeft(node.parent);
+                // We have transformed it into case 2,3 or 4
+            }
+
+            sibling = node.parent.right; // The sibling could have changed after the rotation in case 1
+            // Case 2: The sibling is black and has two black children
+            if (!isRed(sibling) && !isRed(sibling.left) && !isRed(sibling.right)) {
+                sibling.color = Color.RED;
+                if (isRed(node.parent)) {
+                    // If the parent is red we recolor it black and we are done
+                    node.parent.color = Color.BLACK;
+                    return;
+                } else {
+                    // If the parent is black we make it double-black and move up a level to rebalance it
+                    rebalanceDelete(node.parent);
+                    return;
+                }
+            }
+
+            sibling = node.parent.right; // The sibling could have changed
+            // Case 3: The sibling is black, its left child is red and its right child is black
+            if (!isRed(sibling) && isRed(sibling.left) && !isRed(sibling.right)) {
+                sibling.left.color = Color.BLACK;
+                sibling.color = Color.RED;
+                rotateRight(sibling);
+                // This is now case 4
+            }
+
+            sibling = node.parent.right; // The sibling could have changed
+            // Case 4: The sibling is black, its left child is black and its right child is red
+            if (!isRed(sibling) && !isRed(sibling.left) && isRed(sibling.right)) {
+                sibling.right.color = Color.BLACK;
+                if (isRed(node.parent)) {
+                    node.parent.color = Color.BLACK;
+                    sibling.color = Color.RED;
+                }
+
+                rotateLeft(node.parent);
+            }
+        } else {
+            RedBlackNode<T> sibling = node.parent.left;
+
+            // Case 1: The sibling of the double-black node is red
+            if (isRed(sibling)) {
+                node.parent.color = Color.RED;
+                sibling.color = Color.BLACK;
+                rotateRight(node.parent);
+                // We have transformed it into case 2,3 or 4
+            }
+
+            sibling = node.parent.left; // The sibling could have changed after the rotation in case 1
+            // Case 2: The sibling is black and has two black children
+            if (!isRed(sibling) && !isRed(sibling.left) && !isRed(sibling.right)) {
+                sibling.color = Color.RED;
+                if (isRed(node.parent)) {
+                    // If the parent is red we recolor it black and we are done
+                    node.parent.color = Color.BLACK;
+                    return;
+                } else {
+                    // If the parent is black we make it double-black and move up a level to rebalance it
+                    rebalanceDelete(node.parent);
+                    return;
+                }
+            }
+
+            sibling = node.parent.left; // The sibling could have changed
+            // Case 3: The sibling is black, its left child is black and its right child is red
+            if (!isRed(sibling) && !isRed(sibling.left) && isRed(sibling.right)) {
+                sibling.right.color = Color.BLACK;
+                sibling.color = Color.RED;
+                rotateLeft(sibling);
+                // This is now case 4
+            }
+
+            sibling = node.parent.left; // The sibling could have changed
+            // Case 4: The sibling is black, its left child is red and its right child is black
+            if (!isRed(sibling) && isRed(sibling.left) && !isRed(sibling.right)) {
+                sibling.left.color = Color.BLACK;
+                if (isRed(node.parent)) {
+                    node.parent.color = Color.BLACK;
+                    sibling.color = Color.RED;
+                }
+
+                rotateRight(node.parent);
+            }
+        }
     }
 
 }
